@@ -71,4 +71,52 @@ returns_df = df_filtered[df_filtered['transaction_type'] == "Return"]
 total_sales = sales_df['total'].sum()
 total_returns = returns_df['total'].sum()
 net_sales = total_sales - total_returns
-store
+store_sales = sales_df[sales_df['channel'].str.contains("Store")]['total'].sum()
+online_sales = sales_df[sales_df['channel'] == 'Online']['total'].sum()
+
+# عرض KPIs
+st.subheader("📌 Key Metrics")
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("💰 Net Sales", f"{net_sales:,.0f} EGP")
+col2.metric("↩️ Returns", f"{total_returns:,.0f} EGP")
+col3.metric("🏪 Store Sales", f"{store_sales:,.0f} EGP")
+col4.metric("🌐 Online Sales", f"{online_sales:,.0f} EGP")
+
+# مبيعات الموظفين حسب الفرع
+st.subheader("👤 Employee Sales by Branch")
+cashier_sales = sales_df.groupby(['location', 'cashier_name'])['total'].sum().reset_index()
+pivot_cashier = cashier_sales.pivot(index='cashier_name', columns='location', values='total').fillna(0)
+st.dataframe(pivot_cashier.style.format("{:,.0f}"))
+
+# مبيعات البراندات
+st.subheader("🏷️ Sales by Brand")
+brand_sales = sales_df.groupby('brand')['total'].sum().sort_values(ascending=False)
+st.bar_chart(brand_sales)
+
+# المنتجات الأكثر بيعاً
+st.subheader("🔥 Top Selling Products")
+top_products = sales_df.groupby('name_ar')['quantity'].sum().sort_values(ascending=False).head(10)
+st.table(top_products)
+
+# مبيعات يومية
+st.subheader("📈 Daily Sales")
+daily_sales = sales_df.groupby('date')['total'].sum()
+st.line_chart(daily_sales)
+
+# مبيعات أسبوعية
+st.subheader("📆 Weekly Sales")
+weekly_sales = sales_df.resample('W-Mon', on='date')['total'].sum().reset_index()
+st.line_chart(weekly_sales.set_index('date'))
+
+# تحليل المرتجعات حسب البراند
+st.subheader("↩️ Returns by Brand")
+returns_by_brand = returns_df.groupby('brand')['total'].sum().sort_values(ascending=False)
+st.bar_chart(returns_by_brand)
+
+# عرض البيانات الكاملة
+with st.expander("📂 Raw Data"):
+    st.dataframe(df_filtered)
+
+# تحذير لو فيه قيم مفقودة
+if df_filtered.isnull().sum().sum() > 0:
+    st.warning("⚠️ بعض الصفوف تحتوي على بيانات ناقصة. تأكد من تنسيق الشيت.")
