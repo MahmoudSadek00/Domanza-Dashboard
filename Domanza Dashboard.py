@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.express as px
 
 st.set_page_config(page_title="Sales Dashboard", layout="wide")
@@ -9,7 +10,7 @@ st.title("📊 Domanza Sales Dashboard")
 sales_data = pd.DataFrame({
     "Date": pd.date_range(start="2025-08-01", periods=30).tolist() * 3,
     "Channel": ["Branch"]*30 + ["Online"]*30 + ["Individual"]*30,
-    "Branch": ["Cairo"]*15 + ["Alex"]*15 + ["Online"]*30 + ["Ahmed"]*15 + ["Sara"]*15,
+    "Branch": ["Cairo"]*15 + ["Alex"]*15 + ["Online"]*30 + ["-"]*30,  # ✅ تم تعديل مبيعات الأفراد
     "Brand": ["Nike", "Adidas", "Puma"] * 30,
     "Sales": [int(x) for x in abs(np.random.normal(2000, 800, 90))],
     "Salesperson": ["Ahmed"]*15 + ["Sara"]*15 + ["-"]*30 + ["Ahmed"]*15 + ["Sara"]*15
